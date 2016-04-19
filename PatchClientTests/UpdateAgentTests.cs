@@ -33,7 +33,9 @@ namespace Updater.Tests
             var updater = new UpdateAgent();
 
             //act
-            var runner = updater.RunScript(@"C:\temp\test.bat", "");
+            string[] arguments = new string[] { @"C:\NAP", @"C:\MarketName_Patches\PatchTester\Patches" };
+            
+            var runner = updater.RunScript(@"C:\MarketName_Patches\PatchTester\testshell.ps1", arguments);
 
 
             Assert.Fail();

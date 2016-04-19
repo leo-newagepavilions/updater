@@ -7,33 +7,67 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Updater;
+using PatchClient.MCPSvc;
+using System.Diagnostics;
 
 namespace updater
 {
     public class NAPMessaging
     {
-        public async Task<bool> PostUpdaterState(NAPUpdateState updaterState)
+        private PatchClient.MCPSvc.MCPSvcSoapClient _mcpSvc;
+        private static string marketName = ConfigurationManager.AppSettings["MarketSN"];
+
+        public NAPMessaging()
         {
-            var connection = new NAPConnection();
+            _mcpSvc = new MCPSvcSoapClient();           
+        }
 
-            var webservice = ConfigurationManager.AppSettings["ServiceUrl"];
-            var url = webservice + "NAPPatchTransitions/PostNAPPatchTransition";
-            var client = connection.EstablishConnection(url);            
+        public  MCPStatusResponse PostUpdaterState(NAPUpdateModel updaterModel)
+        {
+            try
+            {
+                return  _mcpSvc.UpdateMCPState(new PatchClient.MCPSvc.AuthHeader(), updaterModel.MarketId, updaterModel.McpId, updaterModel.McpState);
 
-            HttpResponseMessage response = await client.PostAsJsonAsync(url, updaterState);
-            if (response.IsSuccessStatusCode)
-                return true;
-            else
-                return false;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }            
+            //var connection = new NAPConnection();
+
+            //var webservice = ConfigurationManager.AppSettings["ServiceUrl"];
+            //var url = webservice + "NAPPatchTransitions/PostNAPPatchTransition";
+            //var client = connection.EstablishConnection(url);            
+
+            //HttpResponseMessage response = await client.PostAsJsonAsync(url, updaterModel);
+            //if (response.IsSuccessStatusCode)
+            //    return true;
+            //else
+            //    return false;
             
         }
+
+        public ConfirmMCPResponse IsProceed( int patchId)
+        {
+            try
+            {
+                return _mcpSvc.ConfirmMCPforProcessing(new AuthHeader(), marketName, patchId);
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }
+
         public bool GetServerCommand()
         {
 
             return true;
         }
 
-        public List<NAPUpdateState> GetAllUpdaterState()
+        public List<NAPUpdateModel> GetAllUpdaterState()
         {
             var connection = new NAPConnection();
            
@@ -46,7 +80,7 @@ namespace updater
             if (response.IsSuccessStatusCode)
             {
                 var str = response.Content.ReadAsStringAsync().Result;
-                var updaterInfo = JsonConvert.DeserializeObject<List<NAPUpdateState>>(str);
+                var updaterInfo = JsonConvert.DeserializeObject<List<NAPUpdateModel>>(str);
                 return updaterInfo;
 
             }

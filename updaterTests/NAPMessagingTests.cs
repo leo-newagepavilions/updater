@@ -28,18 +28,18 @@ namespace updater.Tests
         public async Task PostUpdaterStateTest()
         {
             //arrange
-            var param = new NAPUpdateState();
-            param.MarketId = 2;
-            param.PatchId = 2;
-            param.PatchStateId = 6;
+            var param = new NAPUpdateModel();
+            param.MarketId = "2";
+           
+            param.McpId = 6;
 
             var messager = new NAPMessaging();
             //action
-            var result = await messager.PostUpdaterState(param);
+            //var result = await messager.PostUpdaterState(param);
 
 
             //assert
-            Assert.IsTrue(result);
+            //Assert.IsTrue(result);
         }
     }
 }

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://tempuri.org/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://tempuri.org/">
+      <s:element name="GetMCPManifest">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sSerialNumber" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetMCPManifestResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetMCPManifestResult" type="tns:MCPManifestResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MCPManifestResponse">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="MCPManifest" type="tns:ArrayOfMachineConfigPackageModel" />
+          <s:element minOccurs="0" maxOccurs="1" name="Result" type="tns:SOAPResponseModel" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfMachineConfigPackageModel">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="MachineConfigPackageModel" nillable="true" type="tns:MachineConfigPackageModel" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="MachineConfigPackageModel">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="MCPID" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="Created" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="MCPName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VersionMajor" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="VersionMinor" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="MCPLevel" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="ScheduleLevel" type="tns:ScheduleLevel" />
+          <s:element minOccurs="1" maxOccurs="1" name="CreatedBy" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="BlobKey" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="FileData" type="s:base64Binary" />
+        </s:sequence>
+      </s:complexType>
+      <s:simpleType name="ScheduleLevel">
+        <s:restriction base="s:string">
+          <s:enumeration value="Standard" />
+          <s:enumeration value="Critical" />
+        </s:restriction>
+      </s:simpleType>
+      <s:complexType name="SOAPResponseModel">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Success" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="Reason" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AuthHeader" type="tns:AuthHeader" />
+      <s:complexType name="AuthHeader">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="token" type="s:string" />
+        </s:sequence>
+        <s:anyAttribute />
+      </s:complexType>
+      <s:element name="UpdateMCPState">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sSerialNumber" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="iMCPID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="sState" type="tns:MCPStatus" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="MCPStatus">
+        <s:restriction base="s:string">
+          <s:enumeration value="Unknown" />
+          <s:enumeration value="Assigned" />
+          <s:enumeration value="Cancelled" />
+          <s:enumeration value="Downloading" />
+          <s:enumeration value="Downloaded" />
+          <s:enumeration value="Updating" />
+          <s:enumeration value="Updated" />
+          <s:enumeration value="Rebooting" />
+          <s:enumeration value="Rebooted" />
+        </s:restriction>
+      </s:simpleType>
+      <s:element name="UpdateMCPStateResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateMCPStateResult" type="tns:MCPStatusResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="MCPStatusResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Status" type="tns:MCPStatus" />
+          <s:element minOccurs="0" maxOccurs="1" name="Result" type="tns:SOAPResponseModel" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="ConfirmMCPforProcessing">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="sSerial" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="iMCPID" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="ConfirmMCPforProcessingResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ConfirmMCPforProcessingResult" type="tns:ConfirmMCPResponse" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ConfirmMCPResponse">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="Processable" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="Result" type="tns:SOAPResponseModel" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetMCPManifestSoapIn">
+    <wsdl:part name="parameters" element="tns:GetMCPManifest" />
+  </wsdl:message>
+  <wsdl:message name="GetMCPManifestSoapOut">
+    <wsdl:part name="parameters" element="tns:GetMCPManifestResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetMCPManifestAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMCPStateSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateMCPState" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMCPStateSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateMCPStateResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateMCPStateAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="ConfirmMCPforProcessingSoapIn">
+    <wsdl:part name="parameters" element="tns:ConfirmMCPforProcessing" />
+  </wsdl:message>
+  <wsdl:message name="ConfirmMCPforProcessingSoapOut">
+    <wsdl:part name="parameters" element="tns:ConfirmMCPforProcessingResponse" />
+  </wsdl:message>
+  <wsdl:message name="ConfirmMCPforProcessingAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:portType name="MCPSvcSoap">
+    <wsdl:operation name="GetMCPManifest">
+      <wsdl:input message="tns:GetMCPManifestSoapIn" />
+      <wsdl:output message="tns:GetMCPManifestSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMCPState">
+      <wsdl:input message="tns:UpdateMCPStateSoapIn" />
+      <wsdl:output message="tns:UpdateMCPStateSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmMCPforProcessing">
+      <wsdl:input message="tns:ConfirmMCPforProcessingSoapIn" />
+      <wsdl:output message="tns:ConfirmMCPforProcessingSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="MCPSvcSoap" type="tns:MCPSvcSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetMCPManifest">
+      <soap:operation soapAction="http://tempuri.org/GetMCPManifest" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetMCPManifestAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMCPState">
+      <soap:operation soapAction="http://tempuri.org/UpdateMCPState" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateMCPStateAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmMCPforProcessing">
+      <soap:operation soapAction="http://tempuri.org/ConfirmMCPforProcessing" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:ConfirmMCPforProcessingAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="MCPSvcSoap12" type="tns:MCPSvcSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetMCPManifest">
+      <soap12:operation soapAction="http://tempuri.org/GetMCPManifest" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:GetMCPManifestAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateMCPState">
+      <soap12:operation soapAction="http://tempuri.org/UpdateMCPState" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:UpdateMCPStateAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ConfirmMCPforProcessing">
+      <soap12:operation soapAction="http://tempuri.org/ConfirmMCPforProcessing" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:ConfirmMCPforProcessingAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="MCPSvc">
+    <wsdl:port name="MCPSvcSoap" binding="tns:MCPSvcSoap">
+      <soap:address location="https://services.smartmarketadmindev.com/MCPSvc.asmx" />
+    </wsdl:port>
+    <wsdl:port name="MCPSvcSoap12" binding="tns:MCPSvcSoap12">
+      <soap12:address location="https://services.smartmarketadmindev.com/MCPSvc.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

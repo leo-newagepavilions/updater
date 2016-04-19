@@ -19,6 +19,7 @@ namespace PatchClient.ClinentDbModel.DdModel
         public string MarketSN { get; set; }
         public string PatchSeverity { get; set; }
         public Nullable<System.DateTime> DownloadDate { get; set; }
-        public string PatchState { get; set; }
+        public Nullable<int> PatchState { get; set; }
+        public string PatchName { get; set; }
     }
 }

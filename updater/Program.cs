@@ -1,4 +1,6 @@
 ﻿using NLog;
+using PatchClient.ClinentDbModel.DataModel;
+using PatchClient.MCPSvc;
 using SimpleInjector;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,8 @@ namespace Updater
     {
         public static string marketName = ConfigurationManager.AppSettings["MarketSN"];
         public static string target = ConfigurationManager.AppSettings["Target"];
+        public static string executeDir = ConfigurationManager.AppSettings["ExecuteDir"];
+        
         public static string downloadFolder = ConfigurationManager.AppSettings["DownloadFolder"];
         public static string marketId = ConfigurationManager.AppSettings["MarketId"];
         public static string checkerInterval = ConfigurationManager.AppSettings["DownloadCheckerInterval"];
@@ -36,45 +40,77 @@ namespace Updater
             _container.Register<ILogger>(() => LogManager.GetCurrentClassLogger(), Lifestyle.Singleton);
             _log = _container.GetInstance<ILogger>();
 
+           
+            //add state to local db                       
+            //updaterClient.UpdateClientPatchData(new NAPClientPatch { MarketId = 1, MarketSN = "nvdev", PatchScriptId =1, PatchState = (int)MCPStatus.Downloaded, DownloadDate = DateTime.Now, PatchName = "test" });
+
+
             var updater = new UpdateAgent();
-            var files = updater.GetPackagesByCreatedTime();
-            foreach(FileInfo f in files)
+            var clientPatchInfo = updaterClient.GetAllNewClientPatchData();
+            //var patch = new NAPClientPatch();
+            //patch.PatchName = "PatchTester.zip";
+
+            //patch.PatchScriptId = 10;
+
+            foreach (var patch in clientPatchInfo)
             {
-                updater.UnzipPackage(downloadFolder + f, target);
-                //messager.PostUpdaterState(new NAPUpdateState { MarketId = Convert.ToInt16(marketId), PatchId = 0, PatchStateId = (int)eUpdateState.Extracted }).ConfigureAwait(true);
+                var patchAtDirInfo = updater.GetPackageByPatchName(patch.PatchName);
+                
+                //////////////////
+                ///temp removed
+                // if (patchAtDir == null) continue;
+                //var patchName = updater.GetPackageByPatchName(patch.PatchName).Name;
+                //////////////////
+
+                var patchNameInfo = updater.GetPackageByPatchName(patch.PatchName);
+                
+                var fileNameAsDir = Path.GetFileNameWithoutExtension(patchNameInfo.Name);
+
+                updater.UnzipPackage(downloadFolder + patchNameInfo.Name, target);
+                var scriptFile = updater.GetScriptFile(target + "\\" + fileNameAsDir, ""); // script file name is fixed?
+
+                var confirmResponse = messager.IsProceed(patch.PatchScriptId);
+                //if (!confirmResponse.Processable) return;
+                
+                var stateResponseUpdating = messager.PostUpdaterState(new NAPUpdateModel { MarketId = marketName, McpId = patch.PatchScriptId, McpState = MCPStatus.Updating }).Result;
+                var psfilePath = Path.Combine(target, fileNameAsDir, scriptFile.Name);
+                var psFileDir = Path.Combine(target, fileNameAsDir);
+                string[] arguments = new string[]{ executeDir, psFileDir + "\\" + "Patches" };
+                try
+                {
+                    var report = updater.RunScript(psfilePath, arguments);
+                    var stateResponseUpdated = messager.PostUpdaterState(new NAPUpdateModel { MarketId = marketName, McpId = patch.PatchScriptId, McpState = MCPStatus.Updated }).Result;
+                    
+                    //add state as applied to local db                       
+                    updaterClient.UpdateClientPatchData(new NAPClientPatch { MarketId = Convert.ToInt16(marketId), PatchScriptId = patch.PatchScriptId, MarketSN = marketName, PatchState = "Applied", DownloadDate = DateTime.Now, PatchName = patch.PatchName });
+                }
+                catch (NAPPatchException ex)
+                {
+                    _log.Error("Failed to execute powershelll",ex);
+                }
+                catch(Exception ex)
+                {
+                    _log.Error(ex);
+                }
             }
+
+            //unzip file to target folder
+            //var files = updater.GetPackagesByCreatedTime();            
+
             downloaderInterval.Interval = Convert.ToDouble(checkerInterval);
             downloaderInterval.Start();
-            downloaderInterval.Elapsed += DownloaderInterval_Elapsed;  
+            downloaderInterval.Elapsed += DownloaderInterval_Elapsed;
+
             
-            updaterData
-                       
             Console.ReadLine();
         }
 
         private static void DownloaderInterval_Elapsed(object sender, ElapsedEventArgs e)
         {
-            var listdownloader = downloader.Checker(marketName);
-
-            foreach (var package in listdownloader)
-            {
-                if (!string.IsNullOrEmpty(package.PatchScriptUrl))
-                {
-                    try
-                    {
-                        //send initial state to server
-                        messager.PostUpdaterState(new NAPUpdateState { MarketId = Convert.ToInt16(marketId), PatchId = package.PatchScriptId, PatchStateId = (int)eUpdateState.Initial }).ConfigureAwait(true);
-                        downloader.DownloadPackage(package);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        _log.Error(ex, "Failed to downloading");
-                        Debug.WriteLine(ex);
-                    }
-                }
-
-            }
+            downloaderInterval.Stop();
+           
+            downloader.Checker(marketName);
+            //downloaderInterval.Start();                       
         }
     }
 }

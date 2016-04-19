@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="updaterDataModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="updaterDataModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="NAPClientPatch">
           <Key>
             <PropertyRef Name="PatchScriptId" />
@@ -14,30 +14,31 @@
           <Property Name="MarketSN" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="PatchSeverity" Type="nvarchar" MaxLength="50" />
           <Property Name="DownloadDate" Type="datetime" />
-          <Property Name="PatchState" Type="nvarchar" MaxLength="50" />
+          <Property Name="PatchState" Type="int" />
+          <Property Name="PatchName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityContainer Name="updaterDataModelStoreContainer">
           <EntitySet Name="NAPClientPatch" EntityType="Self.NAPClientPatch" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="updaterDataModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="updaterDataContext" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="NAPClientPatches" EntityType="updaterDataModel.NAPClientPatch" />
+        </EntityContainer>
         <EntityType Name="NAPClientPatch">
           <Key>
             <PropertyRef Name="PatchScriptId" />
           </Key>
           <Property Name="PatchScriptId" Type="Int32" Nullable="false" />
           <Property Name="MarketId" Type="Int32" Nullable="false" />
-          <Property Name="MarketSN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="MarketSN" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="PatchSeverity" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DownloadDate" Type="DateTime" Precision="3" />
-          <Property Name="PatchState" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PatchState" Type="Int32" />
+          <Property Name="PatchName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityContainer Name="updaterDataContext" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="NAPClientPatches" EntityType="Self.NAPClientPatch" />
-        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -47,12 +48,13 @@
           <EntitySetMapping Name="NAPClientPatches">
             <EntityTypeMapping TypeName="updaterDataModel.NAPClientPatch">
               <MappingFragment StoreEntitySet="NAPClientPatch">
-                <ScalarProperty Name="PatchScriptId" ColumnName="PatchScriptId" />
-                <ScalarProperty Name="MarketId" ColumnName="MarketId" />
-                <ScalarProperty Name="MarketSN" ColumnName="MarketSN" />
-                <ScalarProperty Name="PatchSeverity" ColumnName="PatchSeverity" />
-                <ScalarProperty Name="DownloadDate" ColumnName="DownloadDate" />
+                <ScalarProperty Name="PatchName" ColumnName="PatchName" />
                 <ScalarProperty Name="PatchState" ColumnName="PatchState" />
+                <ScalarProperty Name="DownloadDate" ColumnName="DownloadDate" />
+                <ScalarProperty Name="PatchSeverity" ColumnName="PatchSeverity" />
+                <ScalarProperty Name="MarketSN" ColumnName="MarketSN" />
+                <ScalarProperty Name="MarketId" ColumnName="MarketId" />
+                <ScalarProperty Name="PatchScriptId" ColumnName="PatchScriptId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

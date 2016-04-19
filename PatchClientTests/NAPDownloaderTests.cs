@@ -12,14 +12,12 @@ namespace updater.Tests
     public class NAPDownloaderTests
     {
         [TestMethod()]
-        public void CheckerTest()
+        public void DownloadPatchFilesTest()
         {
-            //arrange
-            var download = new NAPDownloader();
-            //act
-            download.Checker("David");
-            //assert
-           // Assert.IsNotNull(downloader);
+            //var downloader = new NAPDownloader();
+            //downloader.DownloadPatchFiles();
+
+            Assert.Fail();
         }
     }
 }

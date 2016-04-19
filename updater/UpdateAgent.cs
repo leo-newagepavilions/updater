@@ -13,22 +13,7 @@ using System.Configuration;
 
 namespace Updater
 {
-    public enum eUpdateState : short
-    {
-        Initial = 0,
-        Downloading = Initial << 1,
-        Downloaded = Initial << 2,
-        Updating = Initial << 3,
-        Updated = Initial << 4,
-        Rebooted = Initial << 5,
-        Pending = Initial << 6,
-        Completed = Initial << 7,
-        Aborted = Initial << 8,
-        Cancelling = Initial << 9,
-        Canceled = Initial << 10,
-        Extracted = Initial << 11
-    }
-
+    
     public class UpdateAgent : IChecker
     {
         private Container _container = new Container();
@@ -73,32 +58,43 @@ namespace Updater
             throw new NotImplementedException();
         }
 
+       
+
         public ScriptResult RunScript(string ps, string[] args)
         {
-            throw new NotImplementedException();
-        }
-
-        public ScriptResult RunScript(string ps, string args)
-        {
-            Process proc = new Process
+            string result = string.Empty;
+            Process proc = null;
+            try
             {
-                StartInfo = new ProcessStartInfo
+               
+                proc = new Process
                 {
-                    FileName = ps,
-                    Arguments = args,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                }
-            };
+                    StartInfo = new ProcessStartInfo
+                    {
+                        //FileName = @"C:\Users\Pavilion\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Windows PowerShell\Windows PowerShell",
 
-            proc.Start();
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-                Console.WriteLine("output" + line);                
+                        FileName = "powershell.exe ",
+                        Arguments = String.Format(" -noprofile -executionpolicy bypass -file {0} {1} {2} ", ps, args[0], args[1]),
+                        UseShellExecute = false,
+                        Verb = "RunAs",
+                        RedirectStandardOutput = true,
+                        CreateNoWindow = true
+                    }
+                };
+
+                proc.Start();
+                while (!proc.StandardOutput.EndOfStream)
+                {                    
+                    result = proc.StandardOutput.ReadToEnd();
+                    Console.WriteLine("output" + result);
+                }
+                return new ScriptResult { Completed = true, Result = result, ErrMessage = string.Empty, ErrorCode = proc.ExitCode };
             }
-            return null;
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex);
+                throw new NAPPatchException(proc.ExitCode.ToString(), ex);
+            }            
         }
 
         public bool RunSqlScript()
@@ -125,12 +121,47 @@ namespace Updater
             }
         }
 
+        public FileInfo GetScriptFile(string targetDirPath,string scriptFile)
+        {
+            if (Directory.Exists(targetDirPath))
+            {
+                
+                var di = new DirectoryInfo(targetDirPath);
+                //return di.GetFiles(".ps1", SearchOption.TopDirectoryOnly).FirstOrDefault(x => x.Name.Equals(scriptFile));
+                //return di.GetFiles(".bat", SearchOption.TopDirectoryOnly).FirstOrDefault(x => x.Name.Equals(scriptFile));
+                return di.GetFiles().FirstOrDefault();
+               // return di.GetFiles(".bat", SearchOption.TopDirectoryOnly).FirstOrDefault();
+            }
+            return null;
+        }
+
+        public List<FileInfo> GetAllScriptFiles(string targetPath)
+        {
+
+            if (Directory.Exists(targetPath))
+            {
+                var di = new DirectoryInfo(targetPath);
+                return di.GetFiles(".ps1",SearchOption.TopDirectoryOnly).OrderBy(x => x.CreationTime).ToList();
+            }
+            return null;
+        }
+
         public List<FileInfo> GetPackagesByCreatedTime()
         {
             if (Directory.Exists(downloadFolder))
             {
                 var di = new DirectoryInfo(downloadFolder);
                 return di.GetFiles().OrderBy(x => x.CreationTime).ToList();                             
+            }
+            return null;
+        }
+
+        public FileInfo GetPackageByPatchName(string name)
+        {
+            if (Directory.Exists(downloadFolder))
+            {
+                var di = new DirectoryInfo(downloadFolder);
+                return di.GetFiles().FirstOrDefault(x => x.Name.Equals(name,StringComparison.OrdinalIgnoreCase));
             }
             return null;
         }
